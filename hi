@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Salesforce Canvas SDK Full Demo</title>
+  <script src="https://qhsandbox-dev-ed.develop.my.salesforce.com/canvas/sdk/js/65.0/canvas-all.js"></script>
+</head>
+<body>
+  <h2>Salesforce Canvas SDK Full Demo</h2>
+  <div id="info">Loading context...</div>
+  <button onclick="getOAuthToken()">Get OAuth Token</button>
+  <button onclick="callSalesforceAPI()">Call Salesforce API</button>
+  <button onclick="closeCanvasTab()">Close Canvas Tab</button>
+ 
+  <script>
+    let signedRequestData = null;
+ 
+    // Refresh signed request and display context
+    Sfdc.canvas.client.refreshSignedRequest(function(data) {
+      signedRequestData = data;
+      if (data && data.context) {
+        const context = data.context;
+        const user = context.user;
+        const recordId = context.environment.parameters.recordId || 'N/A';
+ 
+        document.getElementById("info").innerHTML = `
+          <p><strong>User ID:</strong> ${user.userId}</p>
+          <p><strong>Username:</strong> ${user.userName}</p>
+          <p><strong>Record ID:</strong> ${recordId}</p>
+        `;
+      } else {
+        document.getElementById("info").innerHTML = "Failed to load context.";
+      }
+    });
+ 
+    // Get OAuth token
+    function getOAuthToken() {
+      Sfdc.canvas.oauth.token(signedRequestData.client, function(response) {
+        alert("OAuth Token: " + response.token);
+      });
+    }
+ 
+    // Call Salesforce API
+    function callSalesforceAPI() {
+      const recordId = signedRequestData.context.environment.parameters.recordId;
+      const url = "/services/data/v59.0/sobjects/Opportunity/" + recordId;
+ 
+      Sfdc.canvas.client.ajax({
+        url: url,
+        method: "GET",
+        client: signedRequestData.client
+      }, function(response) {
+        alert("Opportunity Name: " + response.payload.Name);
+      });
+    }
+ 
+    // Close Canvas Tab
+    function closeCanvasTab() {
+      Sfdc.canvas.publisher.publish({
+        name: "canvas_tab_close",
+        payload: { refresh: true }
+      });
+    }
+  </script>
+</body>
+</html>
+ 

@@ -1,59 +1,62 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Salesforce Canvas SDK Full Demo</title>
+  <title>Canvas SDK Simple Demo</title>
   <script src="https://qhsandbox-dev-ed.develop.my.salesforce.com/canvas/sdk/js/65.0/canvas-all.js"></script>
 </head>
 <body>
-  <h2>Salesforce Canvas SDK Full Demo</h2>
-  <div id="info">Loading context...</div>
+  <h2>Salesforce Canvas SDK Demo</h2>
+  <div id="info">Loading Canvas context...</div>
+  
   <button onclick="getOAuthToken()">Get OAuth Token</button>
   <button onclick="callSalesforceAPI()">Call Salesforce API</button>
   <button onclick="closeCanvasTab()">Close Canvas Tab</button>
- 
+  
   <script>
     let signedRequestData = null;
- 
-    // Refresh signed request and display context
     Sfdc.canvas.client.refreshSignedRequest(function(data) {
       signedRequestData = data;
-      if (data && data.context) {
-        const context = data.context;
-        const user = context.user;
-        const recordId = context.environment.parameters.recordId || 'N/A';
- 
+      if(data && data.context) {
+        const user = data.context.user;
+        const recordId = data.context.environment.parameters.recordId || 'N/A';
         document.getElementById("info").innerHTML = `
-          <p><strong>User ID:</strong> ${user.userId}</p>
-          <p><strong>Username:</strong> ${user.userName}</p>
-          <p><strong>Record ID:</strong> ${recordId}</p>
+          <p><b>User ID:</b> ${user.userId}</p>
+          <p><b>Username:</b> ${user.userName}</p>
+          <p><b>Record ID:</b> ${recordId}</p>
         `;
       } else {
-        document.getElementById("info").innerHTML = "Failed to load context.";
+        document.getElementById("info").innerText = "Failed to load Canvas context";
       }
     });
- 
-    // Get OAuth token
+
     function getOAuthToken() {
       Sfdc.canvas.oauth.token(signedRequestData.client, function(response) {
         alert("OAuth Token: " + response.token);
       });
     }
- 
-    // Call Salesforce API
+
     function callSalesforceAPI() {
       const recordId = signedRequestData.context.environment.parameters.recordId;
-      const url = "/services/data/v59.0/sobjects/Opportunity/" + recordId;
- 
+      if(!recordId) {
+        alert("Record ID not found in context.");
+        return;
+      }
+      const url = `/services/data/v59.0/sobjects/Opportunity/${recordId}`;
+
       Sfdc.canvas.client.ajax({
         url: url,
         method: "GET",
         client: signedRequestData.client
       }, function(response) {
-        alert("Opportunity Name: " + response.payload.Name);
+        if(response.status === 200 && response.payload) {
+          alert("Opportunity Name: " + response.payload.Name);
+        } else {
+          alert("Failed to get Opportunity data.");
+        }
       });
     }
- 
-    // Close Canvas Tab
+
     function closeCanvasTab() {
       Sfdc.canvas.publisher.publish({
         name: "canvas_tab_close",
@@ -63,4 +66,3 @@
   </script>
 </body>
 </html>
- 

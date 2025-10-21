@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Salesforce Canvas SDK Demo</title>
+    <script src="https://qhsandbox-dev-ed.develop.my.salesforce.com/canvas/sdk/js/65.0/canvas-all.js"></script>
+    <style>
+      body { font-family: sans-serif; margin: 20px; }
+      .info { background: #f4f4f4; padding: 15px; border-radius: 10px; }
+    </style>
+  </head>
+  <body>
+    <h2>🎨 Salesforce Canvas SDK Demo</h2>
+    <div class="info">
+      <p><strong>User:</strong> <%= user.userName %> (<%= user.email %>)</p>
+      <p><strong>Org ID:</strong> <%= context.organization.orgId %></p>
+      <p><strong>Environment:</strong> <%= context.environment.parameters %></p>
+    </div>
+ 
+    <button id="resizeBtn">Resize Frame</button>
+    <button id="apiBtn">Call Salesforce REST API</button>
+ 
+    <pre id="output"></pre>
+ 
+    <script>
+      // Resize iframe using Canvas SDK
+      document.getElementById("resizeBtn").onclick = function () {
+        Sfdc.canvas.client.resize({ height: 600 });
+      };
+ 
+      // Example: call Salesforce REST API via Canvas SDK
+      document.getElementById("apiBtn").onclick = function () {
+        Sfdc.canvas.client.ajax(
+          {
+            target: "/services/data/v61.0/chatter/users/me",
+            method: "GET",
+          },
+          function (data) {
+            document.getElementById("output").textContent = JSON.stringify(
+              data,
+              null,
+              2
+            );
+          }
+        );
+      };
+    </script>
+  </body>
+</html>

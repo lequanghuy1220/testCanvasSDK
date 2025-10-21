@@ -1,0 +1,16 @@
+{
+  "name": "salesforce-canvas-demo",
+  "version": "1.0.0",
+  "description": "Salesforce Canvas SDK demo for Heroku",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
